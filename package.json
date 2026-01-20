@@ -1,0 +1,68 @@
+{
+  "name": "@cmtlyt/unplugin-shadcn-registry-generate",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "configuration-schema.json"
+  ],
+  "scripts": {
+    "build": "rslib build",
+    "check": "biome check --write",
+    "dev": "rslib build --watch",
+    "format": "biome format --write",
+    "prepublishOnly": "pnpm run build",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "pkg-types": "^2.3.0",
+    "unplugin": "^2.3.11"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.8",
+    "@commitlint/cli": "^20.3.1",
+    "@commitlint/config-conventional": "^20.3.1",
+    "@rslib/core": "^0.19.2",
+    "@types/node": "^24.10.7",
+    "esno": "^4.8.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "typescript": "^5.9.3"
+  },
+  "private": false,
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=18.0.0"
+    },
+    "packageManager": {
+      "name": "pnpm"
+    }
+  },
+  "homepage": "https://github.com/cmtlyt/unplugin-shadcn-registry-generate#readme",
+  "bugs": {
+    "url": "https://github.com/cmtlyt/unplugin-shadcn-registry-generate/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cmtlyt/unplugin-shadcn-registry-generate.git"
+  },
+  "keywords": [
+    "cmtlyt",
+    "unplugin",
+    "shadcn",
+    "shadcn-plugin",
+    "generate-registry"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}
