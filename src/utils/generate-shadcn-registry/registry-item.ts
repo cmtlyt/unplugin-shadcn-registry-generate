@@ -1,6 +1,27 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { Context, RuntimeRegistryItem, WorkFile } from '@/types';
+import type { AliasItem, Context, RuntimeRegistryItem, WorkFile } from '@/types';
+
+const ignoreExtSet = new Set(['.ts', '.tsx', '.js', '.jsx']);
+
+function sliceRelativePath(alias: AliasItem) {
+  const { relativePath, resolvedId } = alias;
+
+  if (fs.statSync(resolvedId).isFile()) {
+    const fileName = path.basename(relativePath);
+    // 如果文件名是 index, 则直接使用目录名
+    if (fileName.startsWith('index.')) {
+      return path.dirname(relativePath);
+    }
+    // 如果文件后缀是 .ts .tsx .js .jsx, 则移除后缀
+    const fileExt = path.extname(relativePath);
+    if (ignoreExtSet.has(fileExt)) {
+      return relativePath.slice(0, -fileExt.length);
+    }
+  }
+
+  return relativePath;
+}
 
 function aliasTransformToRelative(ctx: Context) {
   const { runtimeExports } = ctx;
@@ -12,8 +33,8 @@ function aliasTransformToRelative(ctx: Context) {
         return;
       }
       aliases.forEach((alias) => {
-        const { relativePath, originalId } = alias;
-        file.fileContent = file.fileContent.replace(new RegExp(originalId, 'g'), relativePath);
+        const { originalId } = alias;
+        file.fileContent = file.fileContent.replace(new RegExp(originalId, 'g'), sliceRelativePath(alias));
       });
     });
   });

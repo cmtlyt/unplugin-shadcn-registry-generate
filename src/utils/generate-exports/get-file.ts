@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
-import path from 'node:path';
 import type { Context, RegistryFile } from '@/types';
+import { getRelativePath } from '@/utils/get-relative-path';
 import { tsPathsResolve } from '@/utils/ts-paths-resolve';
 import { fileInWorkspace, isNodeOrgModule } from '@/utils/verify';
 
@@ -26,16 +26,17 @@ function getFileDependencies(
     match = dependencieRegexp.exec(fileContent);
     try {
       const { resolvedId, relativePath, type, ...resolveInfo } = tsPathsResolve(id, ctx, filePath);
-      // 如果依赖已经处理过, 则跳过
-      if (dependenciesSet.has(resolvedId)) {
-        continue;
-      }
+      // 路径别名以文件为单位分割, 而不是入口为单位分割, 所以不通过 dependenciesSet 判断
       // 记录路径别名用于后续替换为相对路径, 防止引用方因路径别名导致的找不到文件
       if (type === 'alias' && relativePath) {
         ctx.runCtx.aliasMap[uuid]!.push({ ...resolveInfo, relativePath, resolvedId });
       }
+      // 如果依赖已经处理过, 则跳过
+      if (dependenciesSet.has(resolvedId)) {
+        continue;
+      }
       // 对于外部依赖直接通过 getFile 处理并保存到 dependencies 中, 后续会被 getFile 和并进 files
-      else if (type === 'dependency') {
+      if (type === 'dependency') {
         dependencies.push(...getFile(id, ctx, { inWorkspace: false }));
         // 对于依赖保存 id
         dependenciesSet.add(id);
@@ -62,7 +63,7 @@ export function getFile(filePath: string, ctx: Context, option?: { inWorkspace?:
     return [];
   }
 
-  const relativePath = path.relative(ctx.baseDir, filePath);
+  const relativePath = getRelativePath(ctx.baseDir, filePath);
   const files: RegistryFile[] = [];
 
   if (inWorkspace) {
@@ -75,7 +76,7 @@ export function getFile(filePath: string, ctx: Context, option?: { inWorkspace?:
       uuid,
       path: relativePath,
       type: 'registry:file',
-      target: `${options.basePath}${path.relative(ctx.baseDir, filePath)}`,
+      target: `${options.basePath}${getRelativePath(ctx.baseDir, filePath)}`,
       fileType: 'workfile',
       aliases,
       fileContent,

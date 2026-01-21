@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { Context } from '@/types';
+import { getRelativePath } from './get-relative-path';
 import { isDependency } from './verify';
 
 function extTry(filePath: string, _ctx: Context) {
@@ -39,7 +40,7 @@ export function tsPathsResolve(id: string, ctx: Context, filePath: string) {
         type: 'alias',
         originalId: id,
         resolvedId,
-        relativePath: path.relative(fileDir, resolvedId),
+        relativePath: getRelativePath(fileDir, resolvedId),
         aliasPath: value,
       };
     }
@@ -50,7 +51,7 @@ export function tsPathsResolve(id: string, ctx: Context, filePath: string) {
         type: 'alias',
         originalId: id,
         resolvedId,
-        relativePath: path.relative(fileDir, resolvedId),
+        relativePath: getRelativePath(fileDir, resolvedId),
         aliasPath: value,
       };
     }

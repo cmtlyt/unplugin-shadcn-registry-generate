@@ -53,6 +53,7 @@ export function generateExports(ctx: Context) {
     .map((item) => registryItemOptimization(item, ctx));
 
   ctx.runtimeExports = exports;
+  ctx.exports = exports as any;
 
   return exports;
 }

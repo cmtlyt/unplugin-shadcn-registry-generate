@@ -60,6 +60,12 @@ export interface Config {
   [key: string]: any;
 }
 
+export interface AliasItem {
+  originalId: string;
+  relativePath: string;
+  resolvedId: string;
+}
+
 export interface Context {
   options: Required<ShadcnRegisterGeneratorOptions>;
   baseDir: string;
@@ -72,7 +78,7 @@ export interface Context {
   runCtx: {
     reqistrys: RuntimeRegistryItem[];
     dependenciesSet: Set<string>;
-    aliasMap: Record<string, Array<{ originalId: string; relativePath: string; resolvedId: string }>>;
+    aliasMap: Record<string, AliasItem[]>;
   };
 }
 
