@@ -1,3 +1,5 @@
-import { createRequire } from 'node:module';
+import { createRequire as nodeCreateRequire } from 'node:module';
 
-export const fileRequire = createRequire(import.meta.url);
+export function createRequire(baseUrl: string = import.meta.url) {
+  return nodeCreateRequire(baseUrl);
+}

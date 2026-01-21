@@ -1,11 +1,11 @@
-import type { Context } from '@/types';
+import type { Context, WorkFile } from '@/types';
 
 export function clearExportsFields(ctx: Context) {
-  const { exports } = ctx;
-  ctx.exports = exports.map((item: any) => {
+  const { runtimeExports } = ctx;
+  ctx.exports = runtimeExports.map((item) => {
     const { extInfo: _, ...otherItem } = item;
-    const files = otherItem.files.map((file: any) => {
-      const { path: filePath, type, target } = file;
+    const files = (otherItem.files as WorkFile[]).map((file) => {
+      const { fileType: __, path: filePath, type, target } = file;
       return { path: filePath, type, target };
     });
     return { ...otherItem, files };

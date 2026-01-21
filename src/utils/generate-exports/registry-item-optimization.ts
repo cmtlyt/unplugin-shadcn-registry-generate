@@ -1,4 +1,4 @@
-import type { Context } from '@/types';
+import type { Context, RuntimeRegistryItem } from '@/types';
 
 export function resolveRegistryDependencieUrl(name: string, ctx: Context) {
   const { options } = ctx;
@@ -6,7 +6,7 @@ export function resolveRegistryDependencieUrl(name: string, ctx: Context) {
   return `${options.registryUrl}/${name}.json`;
 }
 
-export function registryItemOptimization(regItem: any, ctx: Context) {
+export function registryItemOptimization(regItem: RuntimeRegistryItem, ctx: Context) {
   const { extInfo } = regItem;
   const { fileMap } = extInfo;
   const { reqistrys } = ctx.runCtx;

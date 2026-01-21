@@ -1,8 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import type { Context } from '@/types';
-import { fileRequire } from './require';
-import { isNodeOrgModule } from './verify';
+import { isDependency } from './verify';
 
 function extTry(filePath: string, _ctx: Context) {
   const exts = ['.ts', '.tsx', '.js', '.jsx', '.cjs', '.mjs', '.vue'];
@@ -20,17 +19,11 @@ function extTry(filePath: string, _ctx: Context) {
 }
 
 export function tsPathsResolve(id: string, ctx: Context, filePath: string) {
-  try {
-    const tempId = fileRequire.resolve(id);
-    if (path.isAbsolute(tempId)) {
-      return { type: 'original', originalId: id, resolvedId: id };
-    }
-  } catch {
-    //
+  // 判断是否为外部依赖, 如果是的话则直接返回
+  if (isDependency(id, ctx)) {
+    return { type: 'dependency', originalId: id, resolvedId: id };
   }
-  if (isNodeOrgModule(id)) {
-    return { type: 'original', originalId: id, resolvedId: id };
-  }
+  // 通过 tsconfig.json 配置进行路径解析
   const { paths, baseUrl } = ctx.tsConfig?.compilerOptions || {};
   const fileDir = path.dirname(filePath);
   if (!paths) {

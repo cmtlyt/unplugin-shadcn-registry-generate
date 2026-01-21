@@ -1,17 +1,17 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import type { Context } from '@/types';
+import type { Context, RuntimeRegistryItem, WorkFile } from '@/types';
 
 function aliasTransformToRelative(ctx: Context) {
-  const { exports } = ctx;
-  exports.forEach((item: any) => {
+  const { runtimeExports } = ctx;
+  runtimeExports.forEach((item) => {
     const { files } = item;
-    files.forEach((file: any) => {
+    (files as WorkFile[]).forEach((file) => {
       const { aliases } = file;
       if (aliases.length === 0) {
         return;
       }
-      aliases.forEach((alias: any) => {
+      aliases.forEach((alias) => {
         const { relativePath, originalId } = alias;
         file.fileContent = file.fileContent.replace(new RegExp(originalId, 'g'), relativePath);
       });
@@ -19,10 +19,10 @@ function aliasTransformToRelative(ctx: Context) {
   });
 }
 
-function generateRegistryItemJson(regItem: any) {
+function generateRegistryItemJson(regItem: RuntimeRegistryItem) {
   const { files: _files, extInfo: _, ...otherConfig } = regItem;
 
-  const files = _files.map((item: any) => {
+  const files = (_files as WorkFile[]).map((item) => {
     const { path: fromPath, type, target, fileContent } = item;
 
     return {
@@ -42,11 +42,11 @@ function generateRegistryItemJson(regItem: any) {
 }
 
 export function generateRegistryItemJsons(ctx: Context) {
-  const { exports, options } = ctx;
+  const { runtimeExports, options } = ctx;
   const { outputDir } = options;
   aliasTransformToRelative(ctx);
 
-  exports.forEach((item: any) => {
+  runtimeExports.forEach((item) => {
     const ouputPath = path.join(outputDir, `${item.name}.json`);
     const regJson = generateRegistryItemJson(item);
     fs.writeFileSync(ouputPath, JSON.stringify(regJson, null, 2));

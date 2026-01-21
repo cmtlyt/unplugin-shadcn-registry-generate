@@ -1,37 +1,27 @@
 import fs from 'node:fs';
-import type { Context } from '@/types';
+import type { Context, RuntimeRegistryItem } from '@/types';
 import { getNameFromPath } from '@/utils/get-name-from-path';
-import { fileRequire } from '@/utils/require';
 import { tsPathsResolve } from '@/utils/ts-paths-resolve';
+import { filesSummary } from './files-summary';
 import { patchFileAndDeps } from './patch-file-and-deps';
 import { registryItemOptimization } from './registry-item-optimization';
 
 export * from './clear-exports-fields';
 
-function filesSummary(item: any) {
-  const files = item.files;
-  const fileMap = new Map<string, any>();
-  files.forEach((file: any) => {
-    const { path: filePath } = file;
-    fileMap.set(filePath, file);
-  });
-  item.extInfo.filePaths = Array.from(fileMap.keys());
-  item.extInfo.fileMap = fileMap;
-}
-
 export function generateExports(ctx: Context) {
-  const { config } = ctx;
+  const { config, fileRequire } = ctx;
   const { exports: _exports } = config;
 
   const exports = _exports
-    .map((item: any) => {
-      const { path: _path, ...rest } = item;
-      const name = rest.name || getNameFromPath(item, ctx);
+    // 入口文件处理, 生成 registryItem 基本结构
+    .map<RuntimeRegistryItem>((item) => {
+      const { path: _, ...rest } = item;
+      const name = item.name || getNameFromPath(item, ctx);
       const { resolvedId: realPath } = tsPathsResolve(item.path, ctx, `${ctx.baseDir}/package.json`);
       const isFile = fs.statSync(realPath).isFile();
-      const resolveId = fileRequire.resolve(realPath);
+      const resolvedId = fileRequire.resolve(realPath);
 
-      const registryItem = {
+      const registryItem: RuntimeRegistryItem = {
         title: name,
         name: name,
         description: name,
@@ -40,21 +30,29 @@ export function generateExports(ctx: Context) {
         files: [],
         ...rest,
         type: 'registry:item',
-        extInfo: { realPath, isFile, resolveId },
+        extInfo: {
+          realPath,
+          isFile,
+          resolvedId,
+          filePaths: [],
+          fileMap: new Map(),
+        },
       };
 
       ctx.runCtx.reqistrys.push(registryItem);
 
       return registryItem;
     })
-    .map((item: any) => {
+    // 处理入口文件并收集和处理依赖
+    .map((item) => {
       patchFileAndDeps(item, ctx);
       filesSummary(item);
       return item;
     })
-    .map((item: any) => registryItemOptimization(item, ctx));
+    // 优化 registryItem, 抽离 registryDependencies
+    .map((item) => registryItemOptimization(item, ctx));
 
-  ctx.exports = exports;
+  ctx.runtimeExports = exports;
 
   return exports;
 }

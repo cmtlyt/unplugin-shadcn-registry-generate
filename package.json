@@ -1,9 +1,12 @@
 {
   "name": "@cmtlyt/unplugin-shadcn-registry-generate",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
   "exports": {
     ".": {
+      "default": "./dist/index.js",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
