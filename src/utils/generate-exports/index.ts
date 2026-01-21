@@ -16,8 +16,8 @@ export function generateExports(ctx: Context) {
     // 入口文件处理, 生成 registryItem 基本结构
     .map<RuntimeRegistryItem>((item) => {
       const { path: _, ...rest } = item;
-      const name = item.name || getNameFromPath(item, ctx);
       const { resolvedId: realPath } = tsPathsResolve(item.path, ctx, `${ctx.baseDir}/package.json`);
+      const name = item.name || getNameFromPath(realPath, item, ctx);
       const isFile = fs.statSync(realPath).isFile();
       const resolvedId = fileRequire.resolve(realPath);
 
