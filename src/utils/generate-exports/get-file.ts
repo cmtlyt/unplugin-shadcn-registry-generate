@@ -14,7 +14,7 @@ function getFileDependencies(
 ) {
   const { fileRequire } = ctx;
   const dependencieRegexp =
-    /import.*?from.*?(['"])(.*?)\1|import.*?(['"])(.*?)\3|import\(.*?(['"])(.*?)\5.*?\)|export.*?from.*?(['"])(.*?)\7/g;
+    /import.*?from.*?(['"])(.*?)\1|import.*?(['"])(.*?)\3|import\(.*?(['"])(.*?)\5.*?\)|export.*?from.*?(['"])(.*?)\7/gs;
 
   const dependencies: RegistryFile[] = [];
 
