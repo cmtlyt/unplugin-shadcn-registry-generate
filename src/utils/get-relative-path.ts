@@ -5,5 +5,5 @@ export function getRelativePath(base: string, target: string) {
   if (path.sep === '/') {
     return result;
   }
-  return result.replace(new RegExp(path.sep, 'g'), '/');
+  return result.replace(/\\/gu, '/');
 }
